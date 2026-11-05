@@ -62,8 +62,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          [ "$GITHUB_SERVER_URL" = 'https://github.com' ] || { echo '::error::Untrusted GitHub server'; exit 1; }
-          [ "$(printf '%s' "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')" = 'giton22/kyllene' ] || { echo '::error::Untrusted release repository'; exit 1; }
+          # Forks may build releases, but cannot enable the fixed-upstream installer.
+          if [ "$GITHUB_SERVER_URL" != 'https://github.com' ] || [ "$(printf '%s' "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')" != 'giton22/kyllene' ]; then
+            echo 'VOICE_PLUGIN_REVISION=' >> "$GITHUB_ENV"
+            exit 0
+          fi
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo '::error::Invalid release SHA'; exit 1; }
           [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ] || { echo '::error::Checkout does not match release SHA'; exit 1; }
           git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/master || { echo '::error::Release is not on upstream master'; exit 1; }
