@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          # The release pin must be reachable from upstream master, not just a tag.
           fetch-depth: 0
 
       # JetBrains Runtime, as everywhere else: Gradle's daemon asks for it (gradle/gradle-daemon-jvm.properties).
@@ -72,11 +73,18 @@ jobs:
           echo "VOICE_PLUGIN_REVISION=$GITHUB_SHA" >> "$GITHUB_ENV"
 
       - name: Test and build
-        run: >
-          ./gradlew --no-daemon
-          :shared:core:testAndroidHostTest :shared:designsystem:testAndroidHostTest :shared:ui:testAndroidHostTest :shared:wearlink:testAndroidHostTest
-          :wearApp:testDebugUnitTest :androidApp:assembleRelease :wearApp:assembleRelease
-          -PappVersion="${GITHUB_REF_NAME#v}" -PreleasesRepo="$GITHUB_REPOSITORY" -PvoicePluginRevision="$VOICE_PLUGIN_REVISION"
+        shell: bash
+        run: |
+          screen_revision=()
+          # Forks and other GitHub servers leave the fixed-upstream installer unconfigured.
+          revision=$(bash scripts/verify-screen-release-pin.sh)
+          if [ -n "$revision" ]; then
+            screen_revision=("-PscreenPluginRevision=$revision")
+          fi
+          ./gradlew --no-daemon \
+            :shared:core:testAndroidHostTest :shared:designsystem:testAndroidHostTest :shared:ui:testAndroidHostTest :shared:wearlink:testAndroidHostTest \
+            :wearApp:testDebugUnitTest :androidApp:assembleRelease :wearApp:assembleRelease \
+            -PappVersion="${GITHUB_REF_NAME#v}" -PreleasesRepo="$GITHUB_REPOSITORY" -PvoicePluginRevision="$VOICE_PLUGIN_REVISION" "${screen_revision[@]}"
 
       - name: Draft release
         env:

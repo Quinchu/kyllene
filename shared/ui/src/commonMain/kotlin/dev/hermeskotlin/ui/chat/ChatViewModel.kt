@@ -1115,6 +1115,7 @@ class ChatViewModel(
             ThemeMode.System -> Res.string.chat_cmd_skin_system
             ThemeMode.Light -> Res.string.chat_cmd_skin_light
             ThemeMode.Dark -> if (next.pureBlack) Res.string.chat_cmd_skin_black else Res.string.chat_cmd_skin_dark
+
         }
         chat.showCommandOutput("/skin", getString(said))
     }
