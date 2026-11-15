@@ -139,6 +139,7 @@ android {
 }
 
 dependencies {
+    testImplementation(libs.junit4)
     implementation(projects.shared.ui)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

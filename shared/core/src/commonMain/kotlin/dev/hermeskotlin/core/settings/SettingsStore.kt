@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 enum class ThemeMode { System, Light, Dark }
 
@@ -149,6 +150,8 @@ data class AppSettings(
     val phoneTools: Boolean = false,
     /** The phone tools switched on, by gateway name (`PhoneTool.id`). Each starts off. */
     val phoneToolsOn: List<String> = emptyList(),
+    /** Process-local revocation counter; survives conflated settings observations, not process restarts. */
+    @Transient val notificationRevocations: Long = 0,
     /**
      * An approval or a question from a chat out of sight rings like an incoming call instead of a plain notification.
      * Only with [phoneTools] on (see [ringsForAnswers]). It only ever rings this phone: the agent never calls anyone.
@@ -263,7 +266,7 @@ class SettingsStore(private val store: KeyValueStore, private val scope: Corouti
             val stored = store.get(KEY)?.let { runCatching { HermesJson.decodeFromString(AppSettings.serializer(), it) }.getOrNull() }
             while (true) {
                 val current = state.value
-                val loaded = current.pending.fold(stored ?: AppSettings()) { value, transform -> transform(value) }
+                val loaded = current.pending.fold(stored ?: AppSettings()) { value, transform -> applyUpdate(value, transform) }
                 if (state.compareAndSet(current, State(value = loaded))) {
                     if (current.pending.isNotEmpty()) save(loaded)
                     break
@@ -276,12 +279,12 @@ class SettingsStore(private val store: KeyValueStore, private val scope: Corouti
     suspend fun updateDurably(transform: (AppSettings) -> AppSettings) {
         writes.withLock {
             val current = state.value.value ?: error("Settings not loaded")
-            val next = transform(current)
+            val next = applyUpdate(current, transform)
             check(store.putConfirmed(KEY, HermesJson.encodeToString(AppSettings.serializer(), next))) {
                 "Settings persistence could not be confirmed"
             }
             // Merge updates made while the confirmed write suspended, then save them.
-            val merged = state.updateAndGet { it.copy(value = transform(it.value ?: error("Settings not loaded"))) }.value!!
+            val merged = state.updateAndGet { it.copy(value = applyUpdate(it.value ?: error("Settings not loaded"), transform)) }.value!!
             if (merged != next) store.put(KEY, HermesJson.encodeToString(AppSettings.serializer(), merged))
         }
     }
@@ -289,9 +292,17 @@ class SettingsStore(private val store: KeyValueStore, private val scope: Corouti
     fun update(transform: (AppSettings) -> AppSettings) {
         val next = state.updateAndGet { current ->
             if (current.value == null) current.copy(pending = current.pending + transform)
-            else current.copy(value = transform(current.value))
+            else current.copy(value = applyUpdate(current.value, transform))
         }.value ?: return
         save(next)
+    }
+
+    private fun applyUpdate(previous: AppSettings, transform: (AppSettings) -> AppSettings): AppSettings {
+        val next = transform(previous)
+        val id = "phone_notifications"
+        val revoked = previous.phoneTools && id in previous.phoneToolsOn &&
+            (!next.phoneTools || id !in next.phoneToolsOn)
+        return next.copy(notificationRevocations = previous.notificationRevocations + if (revoked) 1 else 0)
     }
 
     private fun save(next: AppSettings) {

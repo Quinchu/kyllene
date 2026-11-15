@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.icons.lucide.AlarmClock
 import com.composables.icons.lucide.BatteryMedium
+import com.composables.icons.lucide.Bell
 import com.composables.icons.lucide.CalendarDays
 import com.composables.icons.lucide.ChevronDown
 import com.composables.icons.lucide.ChevronRight
@@ -649,6 +650,7 @@ internal val PhoneTool.titleRes: StringResource
         PhoneTool.Network -> Res.string.phone_tool_network
         PhoneTool.Sound -> Res.string.phone_tool_sound
         PhoneTool.Alarms -> Res.string.phone_tool_alarms
+        PhoneTool.Notifications -> Res.string.phone_tool_notifications
         PhoneTool.ScreenTime -> Res.string.phone_tool_screen_time
         PhoneTool.Open -> Res.string.phone_tool_open
         PhoneTool.Clipboard -> Res.string.phone_tool_clipboard
@@ -668,6 +670,7 @@ internal val PhoneTool.detailRes: StringResource
         PhoneTool.Network -> Res.string.phone_tool_network_detail
         PhoneTool.Sound -> Res.string.phone_tool_sound_detail
         PhoneTool.Alarms -> Res.string.phone_tool_alarms_detail
+        PhoneTool.Notifications -> Res.string.phone_tool_notifications_detail
         PhoneTool.ScreenTime -> Res.string.phone_tool_screen_time_detail
         PhoneTool.Open -> Res.string.phone_tool_open_detail
         PhoneTool.Clipboard -> Res.string.phone_tool_clipboard_detail
@@ -686,6 +689,7 @@ internal val PhoneTool.icon: ImageVector
         PhoneTool.Network -> Lucide.Wifi
         PhoneTool.Sound -> Lucide.Volume2
         PhoneTool.Alarms -> Lucide.AlarmClock
+        PhoneTool.Notifications -> Lucide.Bell
         PhoneTool.ScreenTime -> Lucide.Hourglass
         PhoneTool.Open -> Lucide.ExternalLink
         PhoneTool.Clipboard -> Lucide.ClipboardCopy

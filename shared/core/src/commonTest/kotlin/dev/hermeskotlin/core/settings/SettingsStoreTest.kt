@@ -15,6 +15,17 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsStoreTest {
+    @Test fun notificationRevocationsSurviveRapidToggleAndPendingLoad() = runTest {
+        val store = SettingsStore(InMemoryKeyValueStore(), backgroundScope)
+        store.update { it.copy(phoneTools = true, phoneToolsOn = listOf("phone_notifications")) }
+        store.update { it.copy(phoneTools = false) }
+        store.update { it.copy(phoneTools = true) }
+        assertEquals(1L, store.settings.filterNotNull().first().notificationRevocations)
+        store.update { it.copy(phoneToolsOn = emptyList()) }
+        store.update { it.copy(phoneToolsOn = listOf("phone_notifications")) }
+        assertEquals(2L, store.settings.value!!.notificationRevocations)
+    }
+
     @Test fun screenClipboardPreferenceSurvivesReloadAndLegacySettings() = runTest {
         val disk = InMemoryKeyValueStore()
         disk.put("settings.v1", "{}")

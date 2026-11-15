@@ -28,6 +28,7 @@ class AndroidPhoneTools(
     chats: ChatTargets,
     notifications: ChatNotifications,
     screens: AgentScreens,
+    private val postedNotifications: PostedNotifications,
 ) : PhoneToolRunner {
 
     private val sound = SoundTool(context, confirmations)
@@ -49,6 +50,7 @@ class AndroidPhoneTools(
             PhoneTool.Network -> network()
             PhoneTool.Sound -> sound.run(args)
             PhoneTool.Alarms -> alarms.run(args)
+            PhoneTool.Notifications -> postedNotifications.read(args)
             PhoneTool.ScreenTime -> screenTime.run(args)
             PhoneTool.Open -> open.run(args)
             PhoneTool.Clipboard -> clipboard.run(args)

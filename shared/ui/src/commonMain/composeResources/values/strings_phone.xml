@@ -75,6 +75,9 @@
     <!-- What a tool still needs from Android, under its switch, and the optional grants offered as a row. -->
     <string name="phone_need_notifications">Turn on Kyllene’s notifications: changes are asked there.</string>
     <string name="phone_need_dnd">Allow Kyllene to change Do Not Disturb.</string>
+    <string name="phone_need_notification_access">Allow notification access in Android settings to read posted notifications.</string>
+    <string name="phone_tool_notifications">Notifications</string>
+    <string name="phone_tool_notifications_detail">Reads recent notifications and their text while enabled. Grant Android notification access separately.</string>
     <string name="phone_need_usage">Give Kyllene Usage access, to see which apps you use.</string>
     <string name="phone_need_location">Allow Kyllene to use this phone’s location.</string>
     <string name="phone_need_precise">Allow precise location: Android only watches places with it.</string>

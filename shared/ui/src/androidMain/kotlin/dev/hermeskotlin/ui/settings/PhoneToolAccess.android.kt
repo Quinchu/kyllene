@@ -81,6 +81,7 @@ private class AndroidPhoneToolAccess(
     override fun missing(tool: PhoneTool): StringResource? = when {
         tool in ASKS && !notificationsOn() -> Res.string.phone_need_notifications
         tool == PhoneTool.Sound && !policyAccess() -> Res.string.phone_need_dnd
+        tool == PhoneTool.Notifications && context.packageName !in NotificationManagerCompat.getEnabledListenerPackages(context) -> Res.string.phone_need_notification_access
         tool == PhoneTool.ScreenTime && !usageAccess() -> Res.string.phone_need_usage
         tool == PhoneTool.Location && !granted(FINE) && !granted(COARSE) -> Res.string.phone_need_location
         tool == PhoneTool.Geofences && !granted(FINE) -> Res.string.phone_need_precise
@@ -124,6 +125,7 @@ private class AndroidPhoneToolAccess(
             // Health Connect's own screen: the user picks which of the three.
             tool == PhoneTool.Health && health?.status == HealthConnectClient.SDK_AVAILABLE -> askHealth(HEALTH_READS)
             tool == PhoneTool.Sound && !policyAccess() -> open(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+            tool == PhoneTool.Notifications -> open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
             tool == PhoneTool.ScreenTime && !usageAccess() -> {
                 // Kyllene's own switch where Android has a page for it (10 and later), else the list of apps.
                 val list = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)

@@ -337,6 +337,17 @@
             </intent-filter>
         </receiver>
 
+        <!-- Android alone may bind; this reads posted events only after the user grants listener access. -->
+        <service
+            android:name=".phone.PostedNotificationListener"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <!-- Keeps the gateway socket alive while a turn runs, and the process up with Notifications anywhere. -->
         <service
             android:name=".notify.ChatService"
