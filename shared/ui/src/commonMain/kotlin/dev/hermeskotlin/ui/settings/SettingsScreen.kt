@@ -650,6 +650,14 @@ internal fun SettingsView(
                     )
                     Divider()
                     SwitchRow(
+                        title = stringResource(Res.string.settings_show_routines),
+                        detail = stringResource(Res.string.settings_show_routines_detail),
+                        checked = settings.showRoutines,
+                        onCheckedChange = { on -> onUpdate { it.copy(showRoutines = on) } },
+                        icon = Lucide.Clock,
+                    )
+                    Divider()
+                    SwitchRow(
                         title = stringResource(Res.string.settings_show_usage),
                         detail = stringResource(Res.string.settings_show_usage_detail),
                         checked = settings.showUsage,

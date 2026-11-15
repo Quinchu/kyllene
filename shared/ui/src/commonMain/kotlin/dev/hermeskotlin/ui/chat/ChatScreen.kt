@@ -916,7 +916,10 @@ internal fun ChatView(
             val findText = findQuery.text.toString()
             // What the list shows; find and its scrolling count the same rows.
             val showReasoning = LocalAppSettings.current.showReasoning
-            val listed = remember(state.messages, showReasoning) { state.messages.withoutBlankReplies(showReasoning) }
+            val showRoutines = LocalAppSettings.current.showRoutines
+            val listed = remember(state.messages, showReasoning, showRoutines) {
+                state.messages.withoutBlankReplies(showReasoning).withVisibleRoutines(showRoutines)
+            }
             // The matched messages by key, so older history loading above them keeps the one shown; worked out only
             // while the bar is open, not on every streamed word.
             val matches = remember(listed.size, listed.lastOrNull()?.key, findText, findOpen) {

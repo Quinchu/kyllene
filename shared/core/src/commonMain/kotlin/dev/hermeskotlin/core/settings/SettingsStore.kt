@@ -90,6 +90,8 @@ data class AppSettings(
     val wallpaperStrength: WallpaperStrength = WallpaperStrength.Faint,
     val showReasoning: Boolean = true,
     val showToolActivity: Boolean = true,
+    /** Show scheduled routine activity in the chat transcript. */
+    val showRoutines: Boolean = true,
     /** Tokens each reply took, under it. */
     val showUsage: Boolean = true,
     /** The time under each prompt and finished reply. */

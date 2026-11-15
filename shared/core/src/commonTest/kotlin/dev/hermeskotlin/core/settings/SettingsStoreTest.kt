@@ -15,6 +15,23 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsStoreTest {
+    @Test fun showRoutinesDefaultsOnAndPersistsBothChoices() = runTest {
+        val disk = InMemoryKeyValueStore()
+        disk.put("settings.v1", """{"theme":"Dark"}""")
+        val first = SettingsStore(disk, backgroundScope)
+        assertTrue(first.settings.filterNotNull().first().showRoutines)
+        first.update { it.copy(showRoutines = false) }
+        assertFalse(first.settings.value!!.showRoutines)
+        advanceUntilIdle()
+        val reopened = SettingsStore(disk, backgroundScope)
+        val restored = reopened.settings.filterNotNull().first()
+        assertFalse(restored.showRoutines)
+        assertEquals(ThemeMode.Dark, restored.theme)
+        reopened.update { it.copy(showRoutines = true) }
+        advanceUntilIdle()
+        assertTrue(SettingsStore(disk, backgroundScope).settings.filterNotNull().first().showRoutines)
+    }
+
     @Test fun notificationRevocationsSurviveRapidToggleAndPendingLoad() = runTest {
         val store = SettingsStore(InMemoryKeyValueStore(), backgroundScope)
         store.update { it.copy(phoneTools = true, phoneToolsOn = listOf("phone_notifications")) }

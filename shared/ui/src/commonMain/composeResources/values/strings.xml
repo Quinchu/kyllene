@@ -99,6 +99,8 @@
     <string name="settings_show_reasoning_detail">The model’s thinking, collapsed above each reply.</string>
     <string name="settings_show_tool_activity">Show tool activity</string>
     <string name="settings_show_tool_activity_detail">The tools each reply used, such as the terminal or web search.</string>
+    <string name="settings_show_routines">Show routines</string>
+    <string name="settings_show_routines_detail">Routine activity in the chat. Replies and notifications are still shown.</string>
     <string name="settings_show_usage">Show token usage</string>
     <string name="settings_show_usage_detail">What each reply took, under it. The chat menu has the totals and cost.</string>
     <string name="settings_message_timestamps">Message timestamps</string>

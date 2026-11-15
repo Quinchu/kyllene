@@ -79,6 +79,7 @@ import dev.hermeskotlin.designsystem.components.HorizontalScrollbar
 import dev.hermeskotlin.designsystem.components.handCursor
 import dev.hermeskotlin.ui.CopyableOnDesktop
 import dev.hermeskotlin.ui.isDesktop
+import dev.hermeskotlin.ui.LocalAppSettings
 import dev.hermeskotlin.ui.bots.BotAvatar
 import dev.hermeskotlin.ui.bots.LocalBotFaces
 import dev.hermeskotlin.ui.resources.*
@@ -92,7 +93,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun TranscriptEventRow(event: TranscriptEvent) {
     when (event) {
-        is TranscriptEvent.SystemMessages -> SystemMessages(event.entries)
+        is TranscriptEvent.SystemMessages -> SystemMessages(event.entries, LocalAppSettings.current.showRoutines)
         is TranscriptEvent.Compaction -> FoldedLine(
             icon = Lucide.History,
             title = stringResource(Res.string.chat_event_compaction),
@@ -125,16 +126,17 @@ internal fun TranscriptEventRow(event: TranscriptEvent) {
 
 /** The same disclosure as Reasoning; open, each entry is its own line, its words a tap further. */
 @Composable
-private fun SystemMessages(entries: List<TranscriptEvent>) {
+private fun SystemMessages(entries: List<TranscriptEvent>, showRoutines: Boolean) {
     var expanded by remember { mutableStateOf(false) }
+    val visible = remember(entries, showRoutines) { entries.visibleSystemEntries(showRoutines) }
     Disclosure(
         icon = { UnstyledIcon(Lucide.Settings, contentDescription = null, tint = Theme[colors][textTertiary], modifier = Modifier.size(16.dp)) },
-        label = stringResource(Res.string.chat_event_system_messages, entries.size),
+        label = stringResource(Res.string.chat_event_system_messages, visible.size),
         expanded = expanded,
         onToggle = { expanded = !expanded },
     ) {
         // Counted from the newest, as the group is keyed: one opened stays open when an earlier page adds entries above.
-        Column { entries.forEachIndexed { i, entry -> key(entries.size - i) { TranscriptEventRow(entry) } } }
+        Column { visible.forEach { (newestIndex, entry) -> key(newestIndex) { TranscriptEventRow(entry) } } }
     }
 }
 
